@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User Details</title>
+</head>
+<body>
+    <a href="/all-users/">Show All Users</a>
+    <h1>User Details</h1>
+    <div id="userDetails">
+        <p>Username: <span id="username">Loading...</span></p>
+        <p>Email: <span id="email">Loading...</span></p>
+        <p>First Name: <span id="first_name">Loading...</span></p>
+        <p>Last Name: <span id="last_name">Loading...</span></p>
+        <!-- Add other user detail elements here -->
+    </div>
+
+    <h2>Update Details</h2>
+    <form id="updateForm">
+        <div>
+            <input type="checkbox" id="update_username_check">
+            <input type="text" id="update_username" placeholder="Username" disabled>
+        </div>
+        <div>
+            <input type="checkbox" id="update_email_check">
+            <input type="email" id="update_email" placeholder="Email" disabled>
+        </div>
+        <div>
+            <input type="checkbox" id="update_first_name_check">
+            <input type="text" id="update_first_name" placeholder="First Name" disabled>
+        </div>
+        <div>
+            <input type="checkbox" id="update_last_name_check">
+            <input type="text" id="update_last_name" placeholder="Last Name" disabled>
+        </div>
+
+        <button type="submit">Update</button>
+    </form>
+
+    <p><a href="/logout">Logout</a></p>
+
+    <script>
+
+        // Function to toggle input field based on checkbox
+        function toggleInput(checkboxId, inputId) {
+            var checkbox = document.getElementById(checkboxId);
+            var input = document.getElementById(inputId);
+            input.disabled = !checkbox.checked;
+        }
+
+        document.getElementById('update_username_check').addEventListener('change', function() {
+            toggleInput('update_username_check', 'update_username');
+        });
+        document.getElementById('update_email_check').addEventListener('change', function() {
+            toggleInput('update_email_check', 'update_email');
+        });
+        document.getElementById('update_first_name_check').addEventListener('change', function() {
+            toggleInput('update_first_name_check', 'update_first_name');
+        });
+        document.getElementById('update_last_name_check').addEventListener('change', function() {
+            toggleInput('update_last_name_check', 'update_last_name');
+        });
+        window.onload = function() {
+            fetch('http://127.0.0.1:8000/api/user-details/', {
+                method: 'GET',
+                headers: {  
+                    'Authorization': 'Token ' + localStorage.getItem('token')
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                document.getElementById('username').textContent = data.username;
+                document.getElementById('email').textContent = data.email;
+                document.getElementById('first_name').textContent = data.first_name;
+                document.getElementById('last_name').textContent = data.last_name;
+                // Update other user detail elements here
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // Handle errors, e.g., redirect to login if not authenticated
+            });
+        };
+
+        document.getElementById('updateForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            updateUserDetails();
+        });
+
+        function updateUserDetails() {
+            var updatedData = {};
+            if (document.getElementById('update_username_check').checked) {
+                updatedData.username = document.getElementById('update_username').value;
+            }
+            if (document.getElementById('update_email_check').checked) {
+                updatedData.email = document.getElementById('update_email').value;
+            }
+            if (document.getElementById('update_first_name_check').checked) {
+                updatedData.first_name = document.getElementById('update_first_name').value;
+            }
+            if (document.getElementById('update_last_name_check').checked) {
+                updatedData.last_name = document.getElementById('update_last_name').value;
+            }
+    
+
+            fetch('http://127.0.0.1:8000/api/update-user-details/', {
+                method: 'PUT', // or 'PATCH' depending on your API design
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Token ' + localStorage.getItem('token')
+                },
+                body: JSON.stringify(updatedData)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Update successful', data);
+                // Handle successful update (e.g., show a success message or refresh user details)
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // Handle errors (e.g., show error message)
+            });
+        }
+    </script>
+</body>
+</html>

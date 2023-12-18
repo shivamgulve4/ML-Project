@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Registration</title>
+</head>
+<body>
+    <h2>Register</h2>
+    <form id="registrationForm">
+        <input type="text" id="username" placeholder="Username" required>
+        <input type="password" id="password" placeholder="Password" required>
+        <input type="email" id="email" placeholder="Email" required>
+        <input type="text" id="first_name" placeholder="First Name" required>
+        <input type="text" id="last_name" placeholder="Last Name" required>
+        <!-- Add other fields as necessary -->
+        <button type="submit">Register</button>
+    </form>
+
+    <script>
+        document.getElementById('registrationForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            registerUser();
+        });
+
+        function registerUser() {
+            var userData = {
+                username: document.getElementById('username').value,
+                password: document.getElementById('password').value,
+                email: document.getElementById('email').value,
+                first_name: document.getElementById('first_name').value,
+                last_name: document.getElementById('last_name').value,
+                // Capture other fields as necessary
+            };
+
+            fetch('http://127.0.0.1:8000/api/register/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(userData)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log(data);
+                window.location.href = '/login'; // Redirect to login page
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // Display error message to the user
+            });
+        }
+    </script>
+</body>
+</html>

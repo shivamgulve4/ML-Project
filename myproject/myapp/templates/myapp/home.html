@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Home Page</title>
+</head>
+<body>
+    <h1>Welcome to the Home Page</h1>
+    <div id="userDetails">
+        <p>Username: <span id="username">Loading...</span></p>
+        <!-- Add other user detail elements here -->
+    </div>
+    <p><a href="/logout">Logout</a></p>
+
+    <script>
+        window.onload = function() {
+            fetch('http://127.0.0.1:8000/api/user-details/', {
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Token ' + localStorage.getItem('token')
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                document.getElementById('username').textContent = data.username;
+                // Update other user detail elements here
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // Handle errors, e.g., redirect to login if not authenticated
+            });
+        };
+    </script>
+</body>
+</html>

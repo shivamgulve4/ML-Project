@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>All Users</title>
+</head>
+<body>
+    <h1>All Registered Users</h1>
+    <div id="usersList">
+        <!-- Users will be listed here -->
+    </div>
+
+    <h2>Delete User</h2>
+    <form id="deleteUserForm">
+        <input type="text" id="delete_username" placeholder="Username to delete" required>
+        <button type="submit">Delete User</button>
+    </form>
+
+    <script>
+        window.onload = function() {
+            fetchAllUsers();
+        };
+        
+        function fetchAllUsers() {
+            fetch('http://127.0.0.1:8000/api/all-users/', {
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Token ' + localStorage.getItem('token')
+                }
+            })
+            .then(response => response.json())
+            .then(users => {
+                const usersList = document.getElementById('usersList');
+                usersList.innerHTML = users.map(user => 
+                    `<p>${user.username} - ${user.email}</p>`  // Adjust according to your User model
+                ).join('');
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        document.getElementById('deleteUserForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            deleteUser();
+        });
+
+        function deleteUser() {
+            const usernameToDelete = document.getElementById('delete_username').value;
+            fetch(`http://127.0.0.1:8000/api/delete-user/${usernameToDelete}/`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': 'Token ' + localStorage.getItem('token')
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                alert('User deleted successfully');
+                fetchAllUsers(); // Refresh the list of users
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error deleting user');
+            });
+        }
+    </script>
+</body>
+</html>
